@@ -11,15 +11,15 @@ jobs:
           java-version: '17'
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.5'
           channel: 'stable'
       - run: flutter create --platforms=android . --project-name ibadat_mode
       - run: flutter pub get
       - name: Fix telephony namespace
         run: |
           FILE=$(find $HOME/.pub-cache -name build.gradle | grep telephony | head -n 1)
-          echo "Fixing $FILE"
-          sed -i "s/android {/android {\n    namespace 'com.shounak.telephony'/" "$FILE" || true
+          if [ -n "$FILE" ]; then
+            sed -i "s/android {/android {\n    namespace 'com.shounak.telephony'/" "$FILE" || true
+          fi
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
         with:
