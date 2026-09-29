@@ -97,13 +97,4 @@ class _HomePageState extends State<HomePage> {
           if (currentPos!= null) Text("Lat: ${currentPos!.latitude.toStringAsFixed(4)}", style: TextStyle(fontSize: 11)),
         ]))),
         SizedBox(height: 20),
-        SwitchListTile(title: Text("Ibadat Mode Active", style: TextStyle(fontWeight: FontWeight.bold)), subtitle: Text("Masjid ke paas auto silent"), value: isActive, activeColor: Colors.green, onChanged: (v){ setState(()=> isActive=v); _savePrefs(); if(v) _start(); else _stop(); }),
-        Divider(),
-        ListTile(title: Text("Radius: ${radius.toInt()}m"), subtitle: Slider(value: radius, min: 50, max: 500, divisions: 9, label: "${radius.toInt()}m", onChanged: (v){ setState(()=> radius=v); _savePrefs(); })),
-        Spacer(),
-        ElevatedButton.icon(style: ElevatedButton.styleFrom(backgroundColor: Colors.green[700], foregroundColor: Colors.white, minimumSize: Size(double.infinity, 50)), icon: Icon(Icons.add_location_alt), label: Text("Add Masjid Location"), onPressed: () async { Position pos = await Geolocator.getCurrentPosition(); setState(()=> masjids.add({"name": "Masjid ${masjids.length}", "lat": pos.latitude, "lng": pos.longitude})); ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Masjid saved! Ab iske ${radius.toInt()}m me auto silent hoga."))); }),
-        SizedBox(height: 10), Text("Allah aapki ibadat qubool kare", style: TextStyle(color: Colors.grey)),
-      ])),
-    );
-  }
-}
+        SwitchListTile(title: Text("Ibadat Mode Active", style: TextStyle(fontWeight: FontWeight.bold)), subtitle: Text("Masjid ke paas auto silent"), value: isActive, activeColor: Colors.green, onChanged: (v){ setState(()=> isActive=v); _savePrefs(); if(v) _start()q
