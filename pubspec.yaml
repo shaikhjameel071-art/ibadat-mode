@@ -1,0 +1,15 @@
+name: ibadat_mode
+description: Masjid me auto silent
+publish_to: 'none'
+version: 1.0.0+1
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  geolocator: ^10.1.0
+  permission_handler: ^11.3.1
+  shared_preferences: ^2.2.2
+  cupertino_icons: ^1.0.6
+flutter:
+  uses-material-design: true
