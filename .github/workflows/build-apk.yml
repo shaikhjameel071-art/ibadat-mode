@@ -16,9 +16,11 @@ jobs:
       - run: flutter pub get
       - name: Fix telephony namespace
         run: |
-          FILE=$(find $HOME/.pub-cache -name build.gradle | grep telephony | head -n 1)
-          if [ -n "$FILE" ]; then
-            sed -i "s/android {/android {\n    namespace 'com.shounak.telephony'/" "$FILE" || true
+          FILE=$(find $HOME/.pub-cache -path "*telephony*/android/build.gradle" | head -n 1)
+          if [ -f "$FILE" ]; then
+            if ! grep -q "namespace" "$FILE"; then
+              sed -i "/android {/a \    namespace 'com.shounak.telephony'" "$FILE"
+            fi
           fi
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
