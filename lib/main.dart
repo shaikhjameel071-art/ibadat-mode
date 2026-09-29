@@ -1,100 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-void main() { runApp(IbadatModeApp()); }
-
-class IbadatModeApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Ibadat Mode',
-      theme: ThemeData(primarySwatch: Colors.green, useMaterial3: true),
-      home: HomePage(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
-}
-
-class HomePage extends StatefulWidget {
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  bool isActive = false;
-  bool isSilentNow = false;
-  Position? currentPos;
-  double radius = 150;
-  String statusText = "Masjid ke paas auto silent hoga";
-  Timer? timer;
-  List<Map<String, dynamic>> masjids = [{"name": "Masjid", "lat": 0.0, "lng": 0.0}];
-
-  @override
-  void initState() {
-    super.initState();
-    _loadPrefs();
-    _requestPerms();
-  }
-
-  _loadPrefs() async {
-    final p = await SharedPreferences.getInstance();
-    setState(() {
-      isActive = p.getBool('isActive')?? false;
-      radius = p.getDouble('radius')?? 150;
-    });
-    if (isActive) _start();
-  }
-
-  _savePrefs() async {
-    final p = await SharedPreferences.getInstance();
-    p.setBool('isActive', isActive);
-    p.setDouble('radius', radius);
-  }
-
-  _requestPerms() async {
-    await Permission.location.request();
-    await Permission.locationAlways.request();
-  }
-
-  _start() {
-    timer?.cancel();
-    timer = Timer.periodic(Duration(seconds: 15), (t) => _check());
-    _check();
-  }
-
-  _stop() { timer?.cancel(); }
-
-  Future<void> _check() async {
-    if (!isActive) return;
-    try {
-      Position pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-      setState(() => currentPos = pos);
-      bool near = false;
-      for (var m in masjids) {
-        if (m['lat'] == 0.0) continue;
-        double d = Geolocator.distanceBetween(pos.latitude, pos.longitude, m['lat'], m['lng']);
-        if (d <= radius) { near = true; break; }
-      }
-      setState(() {
-        if (near) { isSilentNow = true; statusText = "🕌 Masjid ke paas - Silent ON"; }
-        else { isSilentNow = false; statusText = "Masjid se door - Normal"; }
-      });
-    } catch (e) {}
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Ibadat Mode'), backgroundColor: Colors.green[700], foregroundColor: Colors.white, centerTitle: true),
-      body: Padding(padding: EdgeInsets.all(20), child: Column(children: [
-        Card(color: isSilentNow? Colors.orange[100] : Colors.green[50], child: Padding(padding: EdgeInsets.all(20), child: Column(children: [
-          Icon(isSilentNow? Icons.volume_off : Icons.volume_up, size: 60, color: isSilentNow? Colors.orange : Colors.green),
-          SizedBox(height: 10),
-          Text(statusText, textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          if (currentPos!= null) Text("Lat: ${currentPos!.latitude.toStringAsFixed(4)}", style: TextStyle(fontSize: 11)),
-        ]))),
-        SizedBox(height: 20),
-        SwitchListTile(title: Text("Ibadat Mode Active", style: TextStyle(fontWeight: FontWeight.bold)), subtitle: Text("Masjid ke paas auto silent"), value: isActive, activeColor: Colors.green, onChanged: (v){ setState(()=> isActive=v); _savePrefs(); if(v) _start()q
+void main()=>runApp(MaterialApp(home:HomePage(),debugShowCheckedModeBanner:false));
+class HomePage extends StatefulWidget{ @override _HomePageState createState()=>_HomePageState();}
+class _HomePageState extends State<HomePage>{
+bool on=false; List<String> list=[]; String txt="Masjid ke paas auto silent";
+@override void initState(){super.initState();_load();}
+_load()async{final p=await SharedPreferences.getInstance();setState((){list=p.getStringList('m')??[];on=p.getBool('on')??false;});}
+_start(){Timer.periodic(Duration(seconds:15),(t)async{if(!on)return;try{Position pos=await Geolocator.getCurrentPosition(desiredAccuracy:LocationAccuracy.high);for(var s in list){var a=s.split(',');double d=Geolocator.distanceBetween(pos.latitude,pos.longitude,double.parse(a[0]),double.parse(a[1]));if(d<150){setState(()=>txt="🕌 Masjid ke paas - Silent ON");return;}}setState(()=>txt="Masjid se door - Normal");}catch(e){}});}
+_add()async{var pm=await Geolocator.checkPermission();if(pm==LocationPermission.denied) pm=await Geolocator.requestPermission();Position pos=await Geolocator.getCurrentPosition(desiredAccuracy:LocationAccuracy.high);final p=await SharedPreferences.getInstance();list.add("${pos.latitude},${pos.longitude}");await p.setStringList('m',list);setState((){});ScaffoldMessenger.of(context).showSnackBar(SnackBar(content:Text('Masjid Added!')));}
+@override Widget build(BuildContext c){return Scaffold(appBar:AppBar(title:Text('Ibadat Mode'),backgroundColor:Colors.green,foregroundColor:Colors.white),body:Padding(padding:EdgeInsets.all(16),child:Column(children:[Text(txt,style:TextStyle(fontWeight:FontWeight.bold,fontSize:16)),SwitchListTile(title:Text('Ibadat Mode ON'),value:on,onChanged:(v)async{final p=await SharedPreferences.getInstance();await p.setBool('on',v);setState(()=>on=v);if(v)_start();},activeColor:Colors.green),SizedBox(height:10),ElevatedButton(onPressed:_add,style:ElevatedButton.styleFrom(backgroundColor:Colors.green,foregroundColor:Colors.white,minimumSize:Size(double.infinity,50)),child:Text('Add Masjid Location')),SizedBox(height:10),Expanded(child:ListView.builder(itemCount:list.length,itemBuilder:(c,i)=>Card(child:ListTile(leading:Icon(Icons.mosque,color:Colors.green),title:Text("Masjid ${i+1}"),subtitle:Text(list[i]))))))])));}}
