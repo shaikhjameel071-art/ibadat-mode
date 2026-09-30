@@ -1,5 +1,5 @@
 name: Build APK
-on: push
+on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -11,16 +11,11 @@ jobs:
           java-version: '17'
       - uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.22.0'
           channel: 'stable'
-      - run: flutter create --platforms=android . --project-name ibadat_mode
       - run: flutter pub get
-      - name: Fix telephony namespace
-        run: |
-          FILE=$(find $HOME -path "*telephony-0.2.0/android/build.gradle" | head -n 1)
-          echo "Fixing $FILE"
-          sed -i "s/android {/android {\n    namespace 'com.shounak.telephony'\n/" "$FILE"
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
         with:
-          name: ibadat-mode-apk
+          name: app-release
           path: build/app/outputs/flutter-apk/app-release.apk
