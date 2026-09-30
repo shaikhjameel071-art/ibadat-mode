@@ -1,4 +1,41 @@
 import 'package:flutter/material.dart';
-void main()=>runApp(MaterialApp(debugShowCheckedModeBanner:false,home:Home()));
-class Home extends StatefulWidget{State<Home> createState()=>_H();}
-class _H extends State<Home>{int i=0,c=0;bool on=false;@override Widget build(BuildContext ctx){return Scaffold(appBar:AppBar(title:Text("Ibadat Mode"),backgroundColor:Color(0xFF0A3D1E),foregroundColor:Colors.white,centerTitle:true),body:[Center(child:Column(mainAxisAlignment:MainAxisAlignment.center,children:[Icon(on?Icons.do_not_disturb_on:Icons.mosque,size:100,color:Color(0xFF0A3D1E)),Text(on?"IBADAT ON":"IBADAT OFF",style:TextStyle(fontSize:24,fontWeight:FontWeight.bold)),SizedBox(height:20),ElevatedButton(style:ElevatedButton.styleFrom(backgroundColor:on?Colors.red:Colors.green),onPressed:()=>setState(()=>on=!on),child:Text(on?"BAND KARO":"CHALU KARO",style:TextStyle(color:Colors.white)))] )),Center(child:Column(mainAxisAlignment:MainAxisAlignment.center,children:[Text("$c",style:TextStyle(fontSize:80,color:Colors.green)),GestureDetector(onTap:()=>setState(()=>c++),child:Container(width:150,height:150,decoration:BoxDecoration(color:Color(0xFFC8E6C9),shape:BoxShape.circle),child:Icon(Icons.fingerprint,size:80))),ElevatedButton(onPressed:()=>setState(()=>c=0),child:Text("Reset"))])),ListView(children:[ListTile(title:Text("Ar-Rahman")),ListTile(title:Text("Ar-Raheem")),ListTile(title:Text("Al-Malik")),ListTile(title:Text("Al-Quddus"))]),ListView(children:[Card(child:ListTile(title:Text("Dua")))]),][i],bottomNavigationBar:BottomNavigationBar(currentIndex:i,onTap:(x)=>setState(()=>i=x),selectedItemColor:Color(0xFF0A3D1E),type:BottomNavigationBarType.fixed,items:[BottomNavigationBarItem(icon:Icon(Icons.mosque),label:"Ibadat"),BottomNavigationBarItem(icon:Icon(Icons.fingerprint),label:"Tasbih"),BottomNavigationBarItem(icon:Icon(Icons.star),label:"Names"),BottomNavigationBarItem(icon:Icon(Icons.book),label:"Dua")]));}}
+import 'package:flutter/services.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  runApp(const IbadatApp());
+}
+
+class IbadatApp extends StatelessWidget {
+  const IbadatApp({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.mosque, size: 80, color: Colors.white),
+              SizedBox(height: 20),
+              Text("Ibadat Mode ON", style: TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold)),
+              SizedBox(height: 10),
+              Text("Sirf Zaroori Calls", style: TextStyle(color: Colors.white54)),
+              SizedBox(height: 40),
+              ElevatedButton(
+                onPressed: () {
+                  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+                  SystemNavigator.pop();
+                },
+                child: Text("Ibadat Khatam"),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
