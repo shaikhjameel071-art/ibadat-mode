@@ -13,7 +13,7 @@ jobs:
         with:
           flutter-version: '3.22.0'
           channel: 'stable'
-      - run: flutter create --platforms=android.
+      - run: flutter create --platforms=android .
       - run: flutter pub get
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v6
