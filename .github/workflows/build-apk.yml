@@ -13,10 +13,10 @@ jobs:
         with:
           flutter-version: '3.22.0'
           channel: 'stable'
+      - run: flutter create --platforms=android. --org com.example.ibadatmode
       - run: flutter pub get
-      - run: flutter build apk --release
+      - run: flutter build apk --release --verbose
       - uses: actions/upload-artifact@v6
         with:
           name: app-release
           path: build/app/outputs/flutter-apk/app-release.apk
-          
