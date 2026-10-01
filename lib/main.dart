@@ -1,41 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
 
-void main() {
+const String GEMINI_API_KEY = "AIzaSyAvL9dWGeMWH1gW8Cfm8bKj6bZvZxZxZ_PURI_KEY_YAHAN";
+
+void main(){
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-  runApp(const IbadatApp());
+  runApp(const MaterialApp(debugShowCheckedModeBanner:false, home:IbadatHome()));
 }
 
-class IbadatApp extends StatelessWidget {
-  const IbadatApp({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        backgroundColor: Colors.black,
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.mosque, size: 80, color: Colors.white),
-              SizedBox(height: 20),
-              Text("Ibadat Mode ON", style: TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold)),
-              SizedBox(height: 10),
-              Text("Sirf Zaroori Calls", style: TextStyle(color: Colors.white54)),
-              SizedBox(height: 40),
-              ElevatedButton(
-                onPressed: () {
-                  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-                  SystemNavigator.pop();
-                },
-                child: Text("Ibadat Khatam"),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+class IbadatHome extends StatefulWidget{ const IbadatHome({super.key}); @override State<IbadatHome> createState()=> _IbadatHomeState(); }
+class _IbadatHomeState extends State<IbadatHome>{
+  int tab=0; int tasbih=0; String status="Masjid check kar rahe..."; String aiAns="Assalamu Alaikum! Koi deeni sawal puchiye...";
+  final ctrl=TextEditingController(); bool load=false;
+  
+  checkLoc() async {
+    try{
+      await Geolocator.requestPermission();
+      var p=await Geolocator.getCurrentPosition();
+      double d=Geolocator.distanceBetween(p.latitude,p.longitude,19.0330,73.0297);
+      setState(()=> status= d<100? "Masjid ${d.toInt()}m paas - Silent ON 🔕" : "Masjid se ${d.toInt()}m door");
+    }catch(e){ setState(()=> status="Location ON karo bhai"); }
   }
-}
+  
+  askAI() async {
+    if(ctrl.text.isEmpty) return;
+    setState(()=> load=true);
+    try{
+      final m=GenerativeModel(model:'gemini-1.5-flash', apiKey:GEMINI_API_KEY);
+      final r=await m.generateContent([Content.text(ctrl.text)]);
+      setState((){ aiAns=r.text??"Jawab nahi mila"; load=false; });
+    }catch(e){ setState((){ aiAns
